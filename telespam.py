@@ -7,6 +7,34 @@ from selenium.common.exceptions import TimeoutException
 import pickle
 import json
 
+class TSpammer:
+    def __init__(self):
+        self.driver = webdriver.Chrome()
+        self.driver.get('https://web.telegram.org')
+        self.storage = LocalStorage(self.driver)
+
+    def store_to_file(self, filename="default.ws"):
+        if self.storage != None:
+            to_store = self.storage.getAll()
+            fileObject = open(filename, 'wb')
+            pickle.dump(to_store, fileObject)
+
+    def load_from_file(self, filename="default.ws"):
+        if self.storage != None:
+            fileObject = open(filename,'rb')
+            storedict = pickle.load(fileObject)
+            self.storage.setAll(storedict)
+            self.driver.refresh()
+
+    def spam(self,contact,message,times):
+        wait = WebDriverWait(self.driver,120)
+        searchbox = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="ng-app"]/body/div[1]/div[2]/div/div[1]/div[1]/div/input')))
+        searchbox.clear()
+        searchbox.send_keys(contact + Keys.ENTER)
+        textbox = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="ng-app"]/body/div[1]/div[2]/div/div[2]/div[3]/div/div[2]/div[2]/div/div/div/form/div[2]/div[5]')))
+        for x in range(times):
+            textbox.send_keys(message + Keys.ENTER)
+
 class LocalStorage:
 
     def __init__(self, driver):
